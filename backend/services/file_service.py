@@ -16,14 +16,14 @@ async def upload_file(file:UploadFile):
 
 
 
-async def create_file_metadata(db:Session, filename:str, filepath:str)-> FileMetaData:
+async def create_file_metadata(db:Session,file_id:int, filename:str, filepath:str)-> FileMetaData:
   print(f"{filename}: {filepath}")
-  db_file_metadata = FileMetaData(filename=filename, filepath=filepath)
+  db_file_metadata = FileMetaData(fileid= file_id,filename=filename, filepath=filepath)
   db.add(db_file_metadata)
   db.commit()
    # Convert the FileMetaData instance to a dictionary
   metadata_dict = {
-      "id": db_file_metadata.id,
+      "id": db_file_metadata.fileid,
       "filename": db_file_metadata.filename,
       "filepath": db_file_metadata.filepath,
     }
@@ -34,7 +34,7 @@ async def getAllfilesInfo(db:Session):
   return db.query(FileMetaData).all()
 
 async def get_file_url_service(file_id:int, db:Session):
-  file_meta = db.query(FileMetaData).filter(FileMetaData.id == file_id).first()
+  file_meta = db.query(FileMetaData).filter(FileMetaData.fileid == file_id).first()
   if not file_meta:
     raise HTTPException(status_code=404, detail="File not found")
   

@@ -2,7 +2,7 @@ import axios from 'axios'
 import ChatInput from './ChatInput'
 import ChatList from './ChatList'
 import { useState, useEffect } from 'react'
-const ChatPanel = ({ docId }) => {
+const ChatPanel = ({ docId = null }) => {
   // Initialize state with the activeConversation object
   const [activeConversation, setActiveConversation] = useState({
     id: null,
@@ -23,20 +23,25 @@ const ChatPanel = ({ docId }) => {
   })
 
   useEffect(() => {
+    console.log(`Document id: ${docId}`)
     createNewConversation(docId)
   }, [docId])
 
   async function createNewConversation(id) {
     try {
+      console.log('document ID' + id)
       const API_URI = `http://localhost:8000/api/chat`
-      const response = await axios.post(`${API_URI}?doc_id=${id}`)
-      console.log(response.data)
+
+      const response = id
+        ? await axios.post(`${API_URI}?doc_id=${id}`)
+        : await axios.post(`${API_URI}`)
+      console.log(response?.data)
       setActiveConversation({
-        id: response.data.id || null,
+        id: response?.data?.id || null,
         messages: [],
       })
     } catch (err) {
-      console.error('Error creating new conversation:', error)
+      console.error('Error creating new conversation:', err)
     }
   }
 
@@ -109,7 +114,7 @@ const ChatPanel = ({ docId }) => {
         <div className='flex gap-2'>
           {/* <ConversationSelect conversations={$store.conversations} /> */}
           <button
-            className='rounded text-sm border border-blue-500 px-2 py-0.5'
+            className='rounded text-sm border border-blue-500 px-2 py-1  bg-green-600 text-white hover:bg-green-700 focus:outline-none focus:ring-2  focus:ring-green-500 focus:ring-offset-2 transition-all dark:focus:ring-offset-gray-800'
             onClick={() => createNewConversation(docId)}
           >
             New Chat

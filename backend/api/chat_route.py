@@ -18,8 +18,10 @@ class MessageRequest(BaseModel):
                       
 
 @router.post('/chat')
-async def create_conversation(db:db_dependency,doc_id:Optional[int]= Query(None)):
+async def create_conversation(db:db_dependency,doc_id:Optional[str]= Query(None)):
+  print(f"doc_id:", doc_id)
   conversation_data = chat_service.create_conversation(db=db, doc_id=doc_id)
+  print(conversation_data)
   return conversation_data
 
 @router.post('/chat/message')

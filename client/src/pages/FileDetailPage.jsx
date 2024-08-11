@@ -7,12 +7,12 @@ import PDFViewer from '../components/PDFViewer'
 const BASE_URL = 'http://localhost:8000'
 
 const FileDetailPage = () => {
-  const { id } = useParams()
+  const { fileid } = useParams()
   const [fileUrl, setFileUrl] = useState('')
 
   useEffect(() => {
     const fetchFileUrl = async () => {
-      const API_URI = `${BASE_URL}/api/files/${id}`
+      const API_URI = `${BASE_URL}/api/files/${fileid}`
       console.log('Fetching file URL from:', API_URI)
       try {
         const response = await axios.get(API_URI)
@@ -31,7 +31,7 @@ const FileDetailPage = () => {
     }
 
     fetchFileUrl()
-  }, [id])
+  }, [fileid])
 
   return (
     <div
@@ -39,7 +39,7 @@ const FileDetailPage = () => {
       style={{ height: 'calc(100vh - 80px)' }}
     >
       <div className='col-span-1'>
-        <ChatPanel docId={id} />
+        <ChatPanel docId={fileid} />
       </div>
       <div className='col-span-2'>
         {fileUrl ? <PDFViewer documentUrl={fileUrl} /> : <p>Loading...</p>}

@@ -12,6 +12,7 @@ langchain-community = "*"
 langchain-openai = "*"
 pypdf = "*"
 langchain-pinecone = "*"
+langchain-chroma = "*"
 
 [dev-packages]
 

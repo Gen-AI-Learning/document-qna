@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from pathlib import Path
 from services import file_service
 from db_session import get_db
+import uuid
 
 
 router = APIRouter(tags=["upload"])
@@ -27,7 +28,7 @@ async def upload_file(db:db_dependency,file: UploadFile = File(...)):
   
   file_location = await file_service.upload_file(file)
   
-  file_info = await file_service.create_file_metadata(db=db, filename=file.filename, filepath=file_location )
+  file_info = await file_service.create_file_metadata(db=db, file_id=str(uuid.uuid4()), filename=file.filename, filepath=file_location )
   print(f"final response: {file_info}")
 
   # For embedding
@@ -41,7 +42,7 @@ async def get_files_metadata(db:db_dependency):
   return response
 
 @router.get("/files/{file_id}")
-async def get_file_url(file_id:int, db: db_dependency):
+async def get_file_url(file_id:str, db: db_dependency):
   print(f'File ID is {file_id}')
   # Fetch the metadata from the database
   response = await file_service.get_file_url_service(file_id=file_id, db=db)
