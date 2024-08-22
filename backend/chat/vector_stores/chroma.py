@@ -23,7 +23,7 @@ vector_store = Chroma(collection_name="doc_collections",
 def build_chroma_retriever(doc_id):
   return vector_store.as_retriever(
     search_type="mmr",
-    search_kwargs={"k":2, "fetch_k":5, 'filter':{'doc_id': doc_id} if doc_id else {}}
+    search_kwargs={"k":5, "fetch_k":10, 'filter':{'doc_id': doc_id} if doc_id else {}}
   )
 
 

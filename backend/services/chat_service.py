@@ -82,12 +82,18 @@ def create_qa_chain(doc_id=None):
 
   # Rest of the function remains the same...
   prompt = ChatPromptTemplate(
-    [
-      ("system","You are a helpful AI assistant. Answer the user's question based on the provided context and chat_history"),
-      ('human',"{input}"),
-      ("human", "Here's some relevant context: {context}"),
-      ("human", "Given the above conversation and context, please respond appropriately in 3 to 4 sentences maximum. If the user is done or thanking you, a brief farewell is sufficient."),
-    ]
+  [
+    ("system", "You are a helpful AI assistant. Answer the user's question based only on the provided context and chat_history. If there is no relevant context, politely state that you cannot provide an answer."),
+    ('human', "{input}"),
+    ("human", "Here's some relevant context: {context}"),
+    ("human", """
+    If the context provided is empty, respond with:
+    'I currently don't have enough information to answer that question based on the context provided. Could you provide more details?'
+
+    If the context is available, respond appropriately in 3 to 4 sentences maximum. If the user is done or thanking you, a brief farewell is sufficient.
+    """)
+  ] 
+
   )
 
   document_chain = create_stuff_documents_chain(llm=llm , prompt=prompt)
