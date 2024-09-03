@@ -6,7 +6,7 @@ const Navbar = () => {
         aria-label='Global'
       >
         <a className='flex-none text-xl font-semibold dark:text-white' href='/'>
-          RunbookQnA
+          DocumentQnA
         </a>
         <div className='flex flex-row items-center gap-5 mt-5 sm:justify-end sm:mt-0 sm:pl-5'>
           {/* <a
