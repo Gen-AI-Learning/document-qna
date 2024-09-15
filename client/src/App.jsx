@@ -1,3 +1,4 @@
+import AppDetailPage from './pages/AppDetailPage'
 import HomePage from './pages/HomePage'
 import Navbar from './components/Navbar'
 import { Routes, Route } from 'react-router-dom'
@@ -12,9 +13,10 @@ function App() {
       <Navbar />
       <Routes>
         <Route path='/' element={<HomePage />} />
-        <Route path='/chat' element={<ChatPage />} />
-        <Route path='/upload' element={<UploadPage />} />
-        <Route path='/details/:fileid' element={<FileDetailPage />} />
+        <Route path='/chat/:appid' element={<ChatPage />} />
+        <Route path='/upload/:appid' element={<UploadPage />} />
+        <Route path='/app/:appid' element={<AppDetailPage />} />
+        <Route path='/details/:appid/:fileid' element={<FileDetailPage />} />
         <Route path='*' element={<NotFoundPage />} />
       </Routes>
     </div>

@@ -7,12 +7,12 @@ import PDFViewer from '../components/PDFViewer'
 const BASE_URL = 'http://localhost:8000'
 
 const FileDetailPage = () => {
-  const { fileid } = useParams()
+  const { appid, fileid } = useParams()
   const [fileUrl, setFileUrl] = useState('')
 
   useEffect(() => {
     const fetchFileUrl = async () => {
-      const API_URI = `${BASE_URL}/api/files/${fileid}`
+      const API_URI = `${BASE_URL}/api/files/${appid}/${fileid}`
       console.log('Fetching file URL from:', API_URI)
       try {
         const response = await axios.get(API_URI)

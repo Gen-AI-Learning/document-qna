@@ -3,11 +3,13 @@ import { useNavigate } from 'react-router-dom'
 import Button from '../components/Button'
 import ProgressBar from '../components/Progress'
 import axios from 'axios'
+import { useParams } from 'react-router-dom'
 
 const UploadPage = () => {
   const [file, setFile] = useState(null)
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
+  const { appid } = useParams()
 
   const navigate = useNavigate()
 
@@ -19,7 +21,7 @@ const UploadPage = () => {
 
       try {
         setUploading(true)
-        const API_URI = `http://localhost:8000/api/upload/`
+        const API_URI = `http://localhost:8000/api/upload/${appid}`
         const response = await axios.post(API_URI, formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
@@ -38,7 +40,7 @@ const UploadPage = () => {
         // Add a small delay before navigating
         setTimeout(() => {
           setUploading(false)
-          navigate('/')
+          navigate(-1)
         }, 500)
       } catch (error) {
         console.error('Error uploading file:', error)

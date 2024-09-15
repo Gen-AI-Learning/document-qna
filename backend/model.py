@@ -2,6 +2,7 @@ from sqlalchemy import String, Integer, Column, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from database import Base
 from datetime import datetime, timezone
+import uuid
 
 class FileMetaData(Base):
   __tablename__="files_metadata"
@@ -10,6 +11,7 @@ class FileMetaData(Base):
   fileid = Column(String, index=True, unique=True)
   filename= Column(String, index=True)
   filepath = Column(String, index=True)
+  appid = Column(String, ForeignKey('app_details.id'), index=True)
 
 class Conversation(Base):
   __tablename__="conversation_details"
@@ -27,3 +29,9 @@ class ConversationHistory(Base):
     airesponse = Column(String)
     timestamp = Column(DateTime, default=datetime.now(timezone.utc))
     conversation = relationship('Conversation', back_populates='chat_history')
+
+class App(Base):
+   __tablename__ ="app_details"
+   id = Column(String, primary_key=True, index=True, default=lambda: str(uuid.uuid4()))
+   appname= Column(String)
+   domain= Column(String)

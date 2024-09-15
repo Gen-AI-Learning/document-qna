@@ -20,10 +20,16 @@ vector_store = Chroma(collection_name="doc_collections",
                       persist_directory=str(persistent_dir)
                       )
 
-def build_chroma_retriever(doc_id):
+def build_chroma_retriever(doc_id, app_id):
+  filter_criteria = {}
+  if doc_id:
+    filter_criteria['doc_id'] = doc_id
+  if app_id:
+    filter_criteria['appid'] = app_id
+  
   return vector_store.as_retriever(
     search_type="mmr",
-    search_kwargs={"k":5, "fetch_k":10, 'filter':{'doc_id': doc_id} if doc_id else {}}
+    search_kwargs={"k":4, "fetch_k":8, 'filter':filter_criteria}
   )
 
 

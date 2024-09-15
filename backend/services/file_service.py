@@ -16,9 +16,9 @@ async def upload_file(file:UploadFile):
 
 
 
-async def create_file_metadata(db:Session,file_id:int, filename:str, filepath:str)-> FileMetaData:
+async def create_file_metadata(db:Session,file_id:int, filename:str, filepath:str, app_id:str)-> FileMetaData:
   print(f"{filename}: {filepath}")
-  db_file_metadata = FileMetaData(fileid= file_id,filename=filename, filepath=filepath)
+  db_file_metadata = FileMetaData(fileid= file_id,filename=filename, filepath=filepath, appid=app_id)
   db.add(db_file_metadata)
   db.commit()
    # Convert the FileMetaData instance to a dictionary
@@ -26,17 +26,20 @@ async def create_file_metadata(db:Session,file_id:int, filename:str, filepath:st
       "id": db_file_metadata.fileid,
       "filename": db_file_metadata.filename,
       "filepath": db_file_metadata.filepath,
+      "appid": db_file_metadata.appid
     }
     
   return metadata_dict
 
-async def getAllfilesInfo(db:Session):
-  return db.query(FileMetaData).all()
+async def getAllfilesInfo(app_id: str,db:Session):
+  return db.query(FileMetaData).filter(FileMetaData.appid == app_id).all()
 
 async def get_file_url_service(file_id:int, db:Session):
   file_meta = db.query(FileMetaData).filter(FileMetaData.fileid == file_id).first()
   if not file_meta:
     raise HTTPException(status_code=404, detail="File not found")
+  
+  print("hey",file_meta)
   
   normalized_path = file_meta.filepath.replace('\\','/')
   
@@ -44,9 +47,9 @@ async def get_file_url_service(file_id:int, db:Session):
   return document_url
 
 
-def process_embedding(file_id, file_path, filename):
+def process_embedding(file_id, file_path, filename, appid):
   print("Called embeddings")
-  create_embeddings(doc_id=file_id, doc_path=file_path, doc_name=filename)
+  create_embeddings(doc_id=file_id, doc_path=file_path, doc_name=filename, appid=appid)
   
 
   

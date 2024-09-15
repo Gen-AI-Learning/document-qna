@@ -15,6 +15,7 @@ class MessageRequest(BaseModel):
     conversation_id: int
     question: str
     doc_id: Optional[str] = None
+    app_id: Optional[str] = None
                       
 
 @router.post('/chat')
@@ -26,10 +27,11 @@ async def create_conversation(db:db_dependency,doc_id:Optional[str]= Query(None)
 
 @router.post('/chat/message')
 async def ask_question(db:db_dependency,request:MessageRequest):
-  print(request)
+  print("message request",request)
   answer= chat_service.qa_with_history(
      conversation_id=request.conversation_id,
      doc_id=request.doc_id,
+     app_id = request.app_id,
      question=request.question,
      db=db
      )

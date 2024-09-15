@@ -2,7 +2,7 @@ import axios from 'axios'
 import ChatInput from './ChatInput'
 import ChatList from './ChatList'
 import { useState, useEffect } from 'react'
-const ChatPanel = ({ docId = null }) => {
+const ChatPanel = ({ docId = null, appId = null }) => {
   // Initialize state with the activeConversation object
   const [activeConversation, setActiveConversation] = useState({
     id: null,
@@ -63,6 +63,7 @@ const ChatPanel = ({ docId = null }) => {
         conversation_id: activeConversation.id,
         question: value,
         doc_id: docId,
+        app_id: appId,
       }
 
       console.log(requestBody)

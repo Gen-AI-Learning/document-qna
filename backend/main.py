@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-from api import file_route,chat_route
+from api import file_route,chat_route, app_route
 
 from model import Base
 from database import engine
@@ -31,3 +31,4 @@ app.add_middleware(
 
 app.include_router(prefix="/api", router=file_route.router)
 app.include_router(prefix="/api", router=chat_route.router)
+app.include_router(prefix="/api", router=app_route.router)

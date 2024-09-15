@@ -5,7 +5,7 @@ from chat.vector_stores.pinecone import vector_store
 from chat.vector_stores import chroma
 import os
 
-def create_embeddings(doc_id: int, doc_path:str, doc_name:str):
+def create_embeddings(doc_id: int, doc_path:str, doc_name:str, appid:str):
 
   # temp solution, use a file storage
   cur_dir = os.path.dirname(os.path.abspath(__file__))
@@ -31,7 +31,8 @@ def create_embeddings(doc_id: int, doc_path:str, doc_name:str):
       "page": doc.metadata["page"],
       "text":doc.page_content,
       "doc_id": doc_id,
-      "doc_name": doc_name
+      "doc_name": doc_name,
+      "appid":appid
     }
   
   chroma.vector_store.add_documents(documents=docs)

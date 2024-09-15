@@ -10,6 +10,7 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.chains.history_aware_retriever import create_history_aware_retriever
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains.retrieval import create_retrieval_chain
+from langchain.schema import Document
 from database import engine
 
 def create_conversation(db:Session, doc_id:str = None):
@@ -20,7 +21,7 @@ def create_conversation(db:Session, doc_id:str = None):
   return new_conversation
 
 
-def qa_with_history(question:str,conversation_id:int,  db:Session, doc_id:Optional[str]=None):
+def qa_with_history(question:str,conversation_id:int, db:Session, doc_id:Optional[str]=None, app_id: Optional[str]= None):
   chat_history =  get_conversation_history(db=db,conversation_id=conversation_id)
 
   print(f"chat_history: {chat_history}")
@@ -30,7 +31,7 @@ def qa_with_history(question:str,conversation_id:int,  db:Session, doc_id:Option
     formatted_history.append(AIMessage(content=entry.airesponse))
 
    # Create the QA chain with doc_id filter
-  qa_chain = create_qa_chain(doc_id=doc_id)
+  qa_chain = create_qa_chain(doc_id=doc_id, app_id = app_id)
 
   result = qa_chain.invoke({
     "input":question,
@@ -52,19 +53,25 @@ def get_conversation_history(db:Session, conversation_id:int, limit:int=5):
   print("result", result)
   return result
 
-def create_qa_chain(doc_id=None):
+def create_qa_chain(doc_id=None, app_id = None):
   llm = azure_openai.llm
 
   # retriever = build_retreiver(doc_id=doc_id)
-  retriever = chroma.build_chroma_retriever(doc_id=doc_id)
+  retriever = chroma.build_chroma_retriever(doc_id=doc_id, app_id=app_id)
   # retrieved_docs = retriever.invoke("Who created more spice")
   # print(f"Retrieved docs: {retrieved_docs}")
 
    # Create a prompt for retrieval
   retriever_prompt = ChatPromptTemplate.from_messages([
+    ('system', "Given a chat history and the latest user question "
+    "which might reference context in the chat history, "
+    "formulate a standalone question which can be understood "
+    "without the chat history. Do NOT answer the question, "
+    "just reformulate it if needed and otherwise return it as is."),
     MessagesPlaceholder(variable_name="chat_history"),
     ('human',"{input}"),
-    ('human',"Given the above conversation, generate a search query to look up information relevant to the human's last question")
+    
+
   ])
 
   # Create a history-aware retriever
@@ -74,31 +81,66 @@ def create_qa_chain(doc_id=None):
     prompt= retriever_prompt
   )
 
-  # retrieved_docs = history_aware_retriever.invoke({
-  #   "input":"Who created more spice",
-  #   "chat_history":[]
-  # })
-  # print(f"Retrieved docs: {retrieved_docs}")
+  retrieved_docs = history_aware_retriever.invoke({
+    "input":"hi",
+    "chat_history":[]
+  })
+  print(f"Retrieved docs: {retrieved_docs}")
+
+
+  # def retriever_with_fallback(query):
+  #   retrieval_result = history_aware_retriever.invoke({
+  #     "input": query,
+  #     "chat_history": []
+  #   })
+  #   if retrieval_result and retrieval_result[0].page_content == "NO_QUERY":
+  #    return [Document(page_content="This is a greeting or not a question. No specific information is available.")]
+  #   return retrieval_result
 
   # Rest of the function remains the same...
-  prompt = ChatPromptTemplate(
-  [
-    ("system", "You are a helpful AI assistant. Answer the user's question based only on the provided context and chat_history. If there is no relevant context, politely state that you cannot provide an answer."),
-    ('human', "{input}"),
-    ("human", "Here's some relevant context: {context}"),
-    ("human", """
-    If the context provided is empty, respond with:
-    'I currently don't have enough information to answer that question based on the context provided. Could you provide more details?'
 
-    If the context is available, respond appropriately in 3 to 4 sentences maximum. If the user is done or thanking you, a brief farewell is sufficient.
-    """)
-  ] 
 
+  # prompt = ChatPromptTemplate(
+  # [
+  #   ("system", "You are a helpful AI assistant. Answer the user's question based only on the provided context. If there is no relevant context or the context indicates a greeting, politely state that you don't have specific information to respond."),
+  #   ('human', "{input}"),
+  #   ("human", "Here's some relevant context: {context}"),
+  #   ("human", """
+  #     If the context is 'NO_QUERY' or indicates a lack of specific information, respond with:
+  #     'I don't have specific information to respond to that. Is there anything in particular you'd like to know about?'
+
+  #     If context is available, respond appropriately in 3 to 4 sentences maximum.
+  #     Always base your response solely on the provided context.
+  #   """)
+  # ] 
+
+  # )
+
+  system_prompt = (
+      "You are an assistant for question-answering tasks. "
+      "Use the following pieces of retrieved context to answer "
+      "the question. If you don't know the answer, say that you "
+      "don't know. Tryto answer in three or four sentences sentences maximum and keep the "
+      "answer concise."
+      "\n\n"
+      "{context}"
+  )
+  qa_prompt = ChatPromptTemplate.from_messages(
+      [
+          ("system", system_prompt),
+          MessagesPlaceholder("chat_history"),
+          ("human", "{input}"),
+      ]
   )
 
-  document_chain = create_stuff_documents_chain(llm=llm , prompt=prompt)
-
+  document_chain = create_stuff_documents_chain(llm=llm , prompt=qa_prompt)
   return create_retrieval_chain(history_aware_retriever, document_chain)
+
+ 
+            
+
+
+  # return create_retrieval_chain(history_aware_retriever, document_chain)
 
 
 def add_to_history(db:Session, conversation_id, user_question, ai_response):
