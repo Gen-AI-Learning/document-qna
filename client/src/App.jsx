@@ -6,6 +6,7 @@ import NotFoundPage from './pages/NotFoundPage'
 import UploadPage from './pages/UploadPage'
 import FileDetailPage from './pages/FileDetailPage'
 import ChatPage from './pages/ChatPage'
+import AddApp from './components/AddApp'
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
       <Navbar />
       <Routes>
         <Route path='/' element={<HomePage />} />
+        <Route path='/add' element={<AddApp />} />
         <Route path='/chat/:appid' element={<ChatPage />} />
         <Route path='/upload/:appid' element={<UploadPage />} />
         <Route path='/app/:appid' element={<AppDetailPage />} />
